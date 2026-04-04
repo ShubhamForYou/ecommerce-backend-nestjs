@@ -3,6 +3,7 @@ import {
   HttpStatus,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -36,7 +37,10 @@ export class CategoryService {
     }
   }
   async findAll() {
-    const categories = await this.prismaService.category.findMany({});
+    const categories = await this.prismaService.category.findMany({
+      where: { isDeleted: false },
+      orderBy: { createdAt: 'desc' },
+    });
     return {
       statusCode: HttpStatus.OK,
       message:
@@ -46,13 +50,39 @@ export class CategoryService {
       data: categories,
     };
   }
-  // findOne(id: number) {
+  // findOne(id: string) {
   //   return `This action returns a #${id} category`;
   // }
-  // update(id: number, updateCategoryDto: UpdateCategoryDto) {
-  //   return `This action updates a #${id} category`;
-  // }
-  // remove(id: number) {
+  async update(id: string, updateCategoryDto: UpdateCategoryDto) {
+    const category = await this.prismaService.category.findFirst({
+      where: { id, isDeleted: false },
+    });
+    if (!category) {
+      throw new NotFoundException(`Category not found `);
+    }
+    try {
+      const updatedCategory = await this.prismaService.category.update({
+        where: { id },
+        data: updateCategoryDto,
+      });
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Category updated successfully',
+        data: updatedCategory,
+      };
+    } catch (error: any) {
+      const DUPLICATE_CATEGORY = 'P2002';
+      if (error?.code === DUPLICATE_CATEGORY) {
+        const field =
+          error.meta?.driverAdapterError?.cause?.constraint?.fields[0];
+        throw new ConflictException(`Category name already exists`);
+      }
+      throw new InternalServerErrorException(
+        'An error occurred while updating the category',
+      );
+    }
+  }
+  // remove(id: string) {
   //   return `This action removes a #${id} category`;
   // }
 }

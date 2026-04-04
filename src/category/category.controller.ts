@@ -32,11 +32,14 @@ export class CategoryController {
   // findOne(@Param('id') id: string) {
   //   return this.categoryService.findOne(+id);
   // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-  //   return this.categoryService.update(+id, updateCategoryDto);
-  // }
+  @UseGuards(AuthGuard)
+  @Patch(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ) {
+    return await this.categoryService.update(id, updateCategoryDto);
+  }
 
   // @Delete(':id')
   // remove(@Param('id') id: string) {
