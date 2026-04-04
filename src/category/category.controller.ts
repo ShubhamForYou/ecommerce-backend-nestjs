@@ -19,14 +19,14 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoryService.create(createCategoryDto);
+  async create(@Body() createCategoryDto: CreateCategoryDto) {
+    return await this.categoryService.create(createCategoryDto);
   }
-
-  // @Get()
-  // findAll() {
-  //   return this.categoryService.findAll();
-  // }
+  @UseGuards(AuthGuard)
+  @Get()
+  async findAll() {
+    return await this.categoryService.findAll();
+  }
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {

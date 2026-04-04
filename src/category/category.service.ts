@@ -35,9 +35,17 @@ export class CategoryService {
       );
     }
   }
-  // findAll() {
-  //   return `This action returns all category`;
-  // }
+  async findAll() {
+    const categories = await this.prismaService.category.findMany({});
+    return {
+      statusCode: HttpStatus.OK,
+      message:
+        categories.length > 0
+          ? 'Categories retrieved successfully'
+          : 'No categories found',
+      data: categories,
+    };
+  }
   // findOne(id: number) {
   //   return `This action returns a #${id} category`;
   // }

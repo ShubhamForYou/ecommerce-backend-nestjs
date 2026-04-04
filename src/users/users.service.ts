@@ -17,7 +17,7 @@ export class UsersService {
         omit: { password: true },
       });
       return newUser;
-    } catch (err) {
+    } catch (err:any) {
       const DUPLICATE_EMAIL = 'P2002';
       if (err.code === DUPLICATE_EMAIL) {
         const field =
