@@ -4,7 +4,7 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class CreateCategoryDto {
   @IsNotEmpty()
   @IsString()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value.toLowerCase().trim())
   name: string;
   @IsOptional()
   @IsString()
