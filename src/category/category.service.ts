@@ -82,7 +82,20 @@ export class CategoryService {
       );
     }
   }
-  // remove(id: string) {
-  //   return `This action removes a #${id} category`;
-  // }
+  async remove(id: string) {
+    const category = await this.prismaService.category.findFirst({
+      where: { id, isDeleted: false },
+    });
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+    await this.prismaService.category.update({
+      where: { id },
+      data: { isDeleted: true },
+    });
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Category deleted successfully',
+    };
+  }
 }

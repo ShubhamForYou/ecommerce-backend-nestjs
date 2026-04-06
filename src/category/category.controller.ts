@@ -40,9 +40,9 @@ export class CategoryController {
   ) {
     return await this.categoryService.update(id, updateCategoryDto);
   }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.categoryService.remove(+id);
-  // }
+  @UseGuards(AuthGuard)
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.categoryService.remove(id);
+  }
 }
