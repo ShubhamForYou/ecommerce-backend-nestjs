@@ -7,12 +7,12 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
-
 @UseGuards(AuthGuard)
 @Controller('products')
 export class ProductController {
@@ -24,8 +24,12 @@ export class ProductController {
   }
 
   @Get()
-  findAll() {
-    return this.productService.findAll();
+  findAll(
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Query('categoryId') categoryId: string,
+  ) {
+    return this.productService.findAll(page, limit, categoryId);
   }
 
   @Get(':id')

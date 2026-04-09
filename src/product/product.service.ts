@@ -29,8 +29,26 @@ export class ProductService {
     };
   }
 
-  findAll() {
-    return `This action returns all product`;
+  async findAll(page: string, limit: string, categoryId?: string) {
+    const pageNumber = parseInt(page) || 1;
+    const limitNumber = parseInt(limit) || 10;
+    const products = await this.prisma.product.findMany({
+      where: {
+        isDeleted: false,
+        ...(categoryId && { categoryId: categoryId }),
+      },
+      skip: (pageNumber - 1) * limitNumber,
+      take: limitNumber,
+      orderBy: { createdAt: 'desc' },
+    });
+    return {
+      statusCode: HttpStatus.OK,
+      message:
+        products.length > 0
+          ? `Products retrieved successfully`
+          : `No products found`,
+      data: products,
+    };
   }
 
   findOne(id: number) {
