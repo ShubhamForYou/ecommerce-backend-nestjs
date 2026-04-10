@@ -51,15 +51,19 @@ export class ProductService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: string) {
+    const product = await this.prisma.product.findFirst({
+      where: { id, isDeleted: false },
+    });
+    if (!product) {
+      throw new NotFoundException(`Product not found`);
+    }
+    return {
+      statusCode: HttpStatus.OK,
+      message: `Product retrieved successfully`,
+      data: product,
+    };
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} product`;
-  }
+  
 }
