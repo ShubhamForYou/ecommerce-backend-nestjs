@@ -64,6 +64,32 @@ export class ProductService {
       data: product,
     };
   }
+  async update(id: string, updateProductDto: UpdateProductDto) {
+    const product = await this.prisma.product.findFirst({
+      where: { id, isDeleted: false },
+    });
+    if (!product) {
+      throw new NotFoundException(`Product not found`);
+    }
+    if (updateProductDto.categoryId) {
+      const categoryExists = await this.prisma.category.findFirst({
+        where: { id: updateProductDto.categoryId, isDeleted: false },
+      });
+      if (!categoryExists) throw new NotFoundException(`Category not found`);
+    }
+    const updatedProduct = await this.prisma.product.update({
+      where: { id },
+      data: {
+        ...updateProductDto,
+      },
+    });
+    return {
+      statusCode: HttpStatus.OK,
+      message: `Product updated successfully`,
+      data: updatedProduct,
+    };
+  }
 
+  
   
 }
