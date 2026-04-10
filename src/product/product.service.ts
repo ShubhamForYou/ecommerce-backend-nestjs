@@ -90,6 +90,21 @@ export class ProductService {
     };
   }
 
-  
+  async remove(id: string) {
+    const product = await this.prisma.product.findFirst({
+      where: { id, isDeleted: false },
+    });
+    if (!product) {
+      throw new NotFoundException(`Product not found`);
+    }
+    await this.prisma.product.update({
+      where: { id },
+      data: { isDeleted: true },
+    });
+    return {
+      statusCode: HttpStatus.OK,
+      message: `Product deleted successfully`,
+    };
+  }
   
 }
