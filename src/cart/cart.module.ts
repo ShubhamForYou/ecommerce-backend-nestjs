@@ -4,7 +4,7 @@ import { CartController } from './cart.controller';
 import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
-  imports:[PrismaModule],
+  imports: [PrismaModule],
   controllers: [CartController],
   providers: [CartService],
 })

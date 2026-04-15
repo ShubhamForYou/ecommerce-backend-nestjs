@@ -76,7 +76,7 @@ model Product {
   updatedAt   DateTime   @updatedAt @map("updated_at")
   cartItems   CartItem[]
 }
-
+ 
 model Cart {
   id        String     @id @default(uuid())
   user      User       @relation(fields: [userId], references: [id])
