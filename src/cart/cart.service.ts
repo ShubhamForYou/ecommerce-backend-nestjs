@@ -1,4 +1,9 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AddToCartDto } from './dto/add-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -47,6 +52,7 @@ export class CartService {
       select: {
         items: {
           select: {
+            id: true,
             quantity: true,
             product: {
               select: {
@@ -75,16 +81,52 @@ export class CartService {
       data: cart,
     };
   }
+  async updateQuantity(id: string, quantity: number, userId: string) {
+    const cartItem = await this.prisma.cartItem.findUnique({
+      where: { id },
+      select: {
+        cart: {
+          select: {
+            // user: {
+            //   select: {
+            //     id: true,
+            //   },
+            // },
+            userId: true,
+          },
+        },
+      },
+    });
 
-  findOne(id: number) {
-    return `This action returns a #${id} cart`;
+    if (!cartItem) throw new NotFoundException('Cart item not found');
+    if (cartItem.cart.userId !== userId)
+      throw new UnauthorizedException(
+        'You are not authorized to update this cart item',
+      );
+    const updatedCartItem = await this.prisma.cartItem.update({
+      where: {
+        id,
+      },
+      data: {
+        quantity,
+      },
+    });
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Cart item quantity updated successfully',
+      data: updatedCartItem,
+    };
   }
 
-  update(id: number, updateCartDto: UpdateCartDto) {
-    return `This action updates a #${id} cart`;
-  }
+  // findOne(id: number) {
+  //   return `This action returns a #${id} cart`;
+  // }
 
-  remove(id: number) {
-    return `This action removes a #${id} cart`;
-  }
+  // update(id: number, updateCartDto: UpdateCartDto) {
+  //   return `This action updates a #${id} cart`;
+  // }
+
+  // remove(id: number) {
+  //   return `This action removes a #${id} cart`;
+  // }
 }
