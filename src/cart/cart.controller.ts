@@ -23,8 +23,8 @@ export class CartController {
     return this.cartService.addToCart(addToCart, req.user.userId);
   }
   @Get()
-  findAll() {
-    return this.cartService.findAll();
+  findCart(@Req() req) {
+    return this.cartService.findCart(req.user.userId);
   }
 
   @Get(':id')

@@ -24,7 +24,7 @@ export class CartService {
         data: { userId },
       });
     }
-    
+
     const newCartItem = await this.prisma.cartItem.create({
       data: {
         cartId: cart.id,
@@ -39,8 +39,41 @@ export class CartService {
     };
   }
 
-  findAll() {
-    return `This action returns all cart`;
+  async findCart(userId: string) {
+    const cart = await this.prisma.cart.findFirst({
+      where: {
+        userId,
+      },
+      select: {
+        items: {
+          select: {
+            quantity: true,
+            product: {
+              select: {
+                name: true,
+                description: true,
+                price: true,
+              },
+            },
+          },
+        },
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+    if (!cart) throw new NotFoundException('Cart not found');
+    return {
+      statusCode: HttpStatus.OK,
+      message:
+        cart.items.length > 0
+          ? 'Cart retrieved successfully'
+          : 'No product in user cart',
+      data: cart,
+    };
   }
 
   findOne(id: number) {
