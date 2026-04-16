@@ -27,22 +27,16 @@ export class CartController {
     return this.cartService.findCart(req.user.userId);
   }
   @Patch('item/:id')
-  updateQuantity(@Param('id') id: string, @Body('quantity') quantity:number, @Req() req) {
+  updateQuantity(
+    @Param('id') id: string,
+    @Body('quantity') quantity: number,
+    @Req() req,
+  ) {
     return this.cartService.updateQuantity(id, quantity, req.user.userId);
   }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.cartService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateCartDto: UpdateCartDto) {
-  //   return this.cartService.update(+id, updateCartDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.cartService.remove(+id);
-  // }
+  @Delete('item/:id')
+  removeItem(@Param('id') id: string, @Req() req) {
+    return this.cartService.removeItem(id, req.user.userId);
+  }
+  
 }

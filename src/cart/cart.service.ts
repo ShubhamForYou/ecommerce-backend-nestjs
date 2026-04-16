@@ -117,16 +117,36 @@ export class CartService {
       data: updatedCartItem,
     };
   }
-
-  // findOne(id: number) {
-  //   return `This action returns a #${id} cart`;
-  // }
-
-  // update(id: number, updateCartDto: UpdateCartDto) {
-  //   return `This action updates a #${id} cart`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} cart`;
-  // }
+  async removeItem(id: string, userId: string) {
+    const cartItem = await this.prisma.cartItem.findUnique({
+      where: { id },
+      select: {
+        cart: {
+          select: {
+            userId: true,
+          },
+        },
+      },
+    });
+    if (!cartItem) throw new NotFoundException('Cart item not found ');
+    if (cartItem.cart.userId !== userId)
+      throw new UnauthorizedException(
+        'You are not authorized to delete this cart item',
+      );
+    const deletedCartItem = await this.prisma.cartItem.delete({
+      where: { id },
+      select: {
+        product: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Cart item removed successfully',
+      data: deletedCartItem,
+    };
+  }
 }
