@@ -26,7 +26,8 @@ model User {
   addresses Address[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  cart     Cart?
+  cart      Cart?
+  orders    Order[]
 }
 
 enum AddressType {
@@ -51,6 +52,7 @@ model Address {
   isDeleted   Boolean     @default(false) @map("is_deleted")
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
+  orders      Order[]
 }
 
 model Category {
@@ -64,17 +66,18 @@ model Category {
 }
 
 model Product {
-  id          String     @id @default(uuid())
+  id          String      @id @default(uuid())
   name        String
   description String?
   price       Float
-  stock       Int        @default(0)
-  category    Category   @relation(fields: [categoryId], references: [id])
+  stock       Int         @default(0)
+  category    Category    @relation(fields: [categoryId], references: [id])
   categoryId  String
-  isDeleted   Boolean    @default(false) @map("is_deleted")
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
+  isDeleted   Boolean     @default(false) @map("is_deleted")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
   cartItems   CartItem[]
+  orderItems  OrderItem[]
 }
 
 model Cart {
@@ -83,7 +86,7 @@ model Cart {
   userId    String     @unique @map("user_id")
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @updatedAt @map("updated_at")
-  items CartItem[]
+  items     CartItem[]
 }
 
 model CartItem {
@@ -93,4 +96,37 @@ model CartItem {
   product   Product @relation(fields: [productId], references: [id])
   productId String  @map("product_id")
   quantity  Int     @default(1)
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  user        User        @relation(fields: [userId], references: [id])
+  userId      String      @map("user_id")
+  address     Address     @relation(fields: [addressId], references: [id])
+  addressId   String      @map("address_id")
+  totalAmount Float       @map("total_amount")
+  status      OrderStatus @default(PENDING)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  orderItems  OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   String   @map("order_id")
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String   @map("product_id")
+  quantity  Int      @default(1)
+  price     Float
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 }
