@@ -5,7 +5,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { CartModule } from './cart/cart.module';
-import { OrdersModule } from './orders/orders.module';
+
 import { AddressModule } from './address/address.module';
 import { PaymentsModule } from './payments/payments.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -14,7 +14,7 @@ import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
-
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -22,7 +22,6 @@ import { ProductModule } from './product/product.module';
     AuthModule,
     UsersModule,
     CartModule,
-    OrdersModule,
     AddressModule,
     PaymentsModule,
     NotificationsModule,
@@ -31,6 +30,7 @@ import { ProductModule } from './product/product.module';
     PrismaModule,
     CategoryModule,
     ProductModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaModule],
