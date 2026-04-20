@@ -112,11 +112,7 @@ export class OrderService {
     if (!order) {
       throw new NotFoundException('Order not found');
     }
-    if (order.userId !== userId) {
-      throw new UnauthorizedException(
-        'You are not authorized to view this order',
-      );
-    }
+    
     return {
       statusCode: HttpStatus.OK,
       message: 'Order retrieved successfully',
