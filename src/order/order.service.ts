@@ -3,6 +3,7 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -60,7 +61,7 @@ export class OrderService {
       (sum, item) => sum + item.price * item.quantity,
       0,
     );
-    order =await this.prisma.order.update({
+    order = await this.prisma.order.update({
       where: { id: order.id },
       data: { totalAmount },
     });
@@ -71,13 +72,57 @@ export class OrderService {
     };
   }
 
-  findAll() {
-    return `This action returns all order`;
+  async findAll(userId: string) {
+    const orders = await this.prisma.order.findMany({
+      where: { userId },
+      include: {
+        orderItems: {
+          include: {
+            product: {
+              select: { name: true },
+            },
+          },
+        },
+        address: true,
+      },
+    });
+    return {
+      statusCode: HttpStatus.OK,
+      message:
+        orders.length > 0 ? 'Orders retrieved successfully' : 'No orders found',
+      data: orders,
+    };
   }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} order`;
-  // }
+  async findOne(id: string, userId: string) {
+    const order = await this.prisma.order.findFirst({
+      where: {
+        id,
+      },
+      include: {
+        orderItems: {
+          include: {
+            product: {
+              select: { name: true },
+            },
+          },
+        },
+      },
+    });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    if (order.userId !== userId) {
+      throw new UnauthorizedException(
+        'You are not authorized to view this order',
+      );
+    }
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Order retrieved successfully',
+      data: order,
+    };
+  }
 
   // update(id: number, updateOrderDto: UpdateOrderDto) {
   //   return `This action updates a #${id} order`;

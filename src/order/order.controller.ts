@@ -19,19 +19,19 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto, @Req() req ) {
-    return this.orderService.create(createOrderDto,req.user.userId);
+  create(@Body() createOrderDto: CreateOrderDto, @Req() req) {
+    return this.orderService.create(createOrderDto, req.user.userId);
   }
 
   @Get()
-  findAll() {
-    return this.orderService.findAll();
+  findAll(@Req() req) {
+    return this.orderService.findAll(req.user.userId);
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.orderService.findOne(+id);
-  // }
+  @Get(':id')
+  findOne(@Param('id') id: string, @Req() req) {
+    return this.orderService.findOne(id, req.user.userId);
+  }
 
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
