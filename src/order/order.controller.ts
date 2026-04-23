@@ -13,6 +13,7 @@ import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { OrderStatus } from 'src/generated/prisma/enums';
 @UseGuards(AuthGuard)
 @Controller('order')
 export class OrderController {
@@ -32,14 +33,12 @@ export class OrderController {
   findOne(@Param('id') id: string, @Req() req) {
     return this.orderService.findOne(id, req.user.userId);
   }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-  //   return this.orderService.update(+id, updateOrderDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.orderService.remove(+id);
-  // }
+  @Post(':id/pay')
+  createPayment(@Param('id') id: string, @Req() req) {
+    return this.orderService.createPayment(id, req.user.userId);
+  }
+  @Post(':id/status')
+  updateStatus(@Param('id') id: string, @Body('status') status: OrderStatus) {
+    return this.orderService.updateStatus(id,status)
+  }
 }

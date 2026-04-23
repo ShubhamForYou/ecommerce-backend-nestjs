@@ -8,6 +8,7 @@ import {
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { OrderStatus } from 'src/generated/prisma/enums';
 interface OrderItem {
   orderId: string;
   productId: string;
@@ -98,6 +99,7 @@ export class OrderService {
     const order = await this.prisma.order.findFirst({
       where: {
         id,
+        userId,
       },
       include: {
         orderItems: {
@@ -112,19 +114,44 @@ export class OrderService {
     if (!order) {
       throw new NotFoundException('Order not found');
     }
-    
+
     return {
       statusCode: HttpStatus.OK,
       message: 'Order retrieved successfully',
       data: order,
     };
   }
-
-  // update(id: number, updateOrderDto: UpdateOrderDto) {
-  //   return `This action updates a #${id} order`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} order`;
-  // }
+  async createPayment(id: string, userId: string) {
+    const order = await this.prisma.order.findFirst({ where: { id, userId } });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    if (order.status !== OrderStatus.PENDING) {
+      throw new BadRequestException('Payment already processed for this order');
+    }
+    const updatedOrder = await this.prisma.order.update({
+      where: { id },
+      data: { status: OrderStatus.CONFIRMED },
+    });
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Payment processed successfully',
+      data: updatedOrder,
+    };
+  }
+  async updateStatus(id: string, status: OrderStatus) {
+    const order = await this.prisma.order.findUnique({ where: { id } });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    const updatedOrder = await this.prisma.order.update({
+      where: { id },
+      data: { status },
+    });
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Order status updated successfully',
+      data: updatedOrder,
+    };
+  }
 }
